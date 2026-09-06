@@ -19,7 +19,7 @@ meaning the rule is considered uncontested.
 ### Normative References
 
 - RFC 2119, *Key words for use in RFCs to Indicate Requirement
-  Levels*. Defines MUST, MUST NOT, SHOULD, and MAY as used throughout
+  Levels*. Defines **MUST**, **MUST NOT**, **SHOULD**, and **MAY** as used throughout
   this specification.
 
 ### Informative References
@@ -81,10 +81,10 @@ stage, and the mechanism (the Lexicon) by which curated exceptions to
 the mechanical rules are recorded.
 
 This specification does not address: segmentation of natural-language
-prose or multi-identifier strings; transliteration of scripts other
-than the German characters covered in Normalization (see
-`decisions/0003-non-ascii-transliteration.md`); or a settled policy for
-treating trademarked compounds as atomic (see
+prose or multi-identifier strings; transliteration of non-ASCII
+characters beyond the mapping table currently defined in Normalization
+(see `decisions/0003-non-ascii-transliteration.md`); or a settled
+policy for treating trademarked compounds as atomic (see
 `decisions/0006-trademarks.md`, which remains proposed).
 
 ## Conformance
@@ -109,10 +109,11 @@ An implementation of this specification conforms if and only if it:
 
 ## Normalization
 
-Normalization MUST transliterate German characters to ASCII before
-Tokenization runs: a with an umlaut to "ae", o with an umlaut to "oe",
-u with an umlaut to "ue", and the eszett character to "ss". After
-Normalization, the string MUST contain only ASCII characters. (See
+Normalization **MUST** transliterate non-ASCII characters to ASCII before
+Tokenization runs. The mapping table currently defines: a with an
+umlaut to "ae", o with an umlaut to "oe", u with an umlaut to "ue",
+and the eszett character to "ss". After Normalization, the string
+**MUST** contain only ASCII characters. (See
 `decisions/0003-non-ascii-transliteration.md`.)
 
 ```example
@@ -137,9 +138,9 @@ Normalization, the string MUST contain only ASCII characters. (See
 
 ## Tokenization
 
-Tokenization MUST divide a Normalized input string into a sequence of
+Tokenization **MUST** divide a Normalized input string into a sequence of
 Tokens. It does this in two steps: first, the Orthographic Segmentation
-Rules mechanically identify Boundaries; second, the Lexicon MAY
+Rules mechanically identify Boundaries; second, the Lexicon **MAY**
 override the mechanical result for specific strings before Case
 Folding runs.
 
@@ -150,7 +151,7 @@ govern where Tokenization places a Boundary based on adjacent
 characters.
 
 **T1** - A transition from a lowercase letter to an uppercase letter
-MUST be treated as a Boundary.
+**MUST** be treated as a Boundary.
 
 ```example
   input: userId
@@ -162,7 +163,7 @@ MUST be treated as a Boundary.
   constant: USER_ID
 ```
 
-**T2** - A Cap-run followed by a lowercase letter MUST have a Boundary
+**T2** - A Cap-run followed by a lowercase letter **MUST** have a Boundary
 placed immediately before the Cap-run's final letter, so that the
 final letter joins the following lowercase run instead of the Cap-run.
 
@@ -200,7 +201,7 @@ letter preceded by a lowercase letter is governed by T1 alone.
   constant: X_COORDINATE
 ```
 
-**T3** - A transition from a letter to a digit MUST NOT be treated as a
+**T3** - A transition from a letter to a digit **MUST NOT** be treated as a
 Boundary; the digit fuses onto the preceding letters. (See
 `decisions/0002-digit-adjacent-boundaries.md`.)
 
@@ -214,7 +215,7 @@ Boundary; the digit fuses onto the preceding letters. (See
   constant: SHA256_HASH
 ```
 
-**T4** - A transition from a digit to an uppercase letter MUST be
+**T4** - A transition from a digit to an uppercase letter **MUST** be
 treated as a Boundary. (See
 `decisions/0002-digit-adjacent-boundaries.md`.)
 
@@ -228,7 +229,7 @@ treated as a Boundary. (See
   constant: ISO8601_DATE
 ```
 
-**T5** - A transition from a digit to a lowercase letter MUST NOT be
+**T5** - A transition from a digit to a lowercase letter **MUST NOT** be
 treated as a Boundary. This sub-case is unvalidated: no corpus case
 exercises a digit immediately followed by a lowercase letter, and it
 is asserted only by symmetry with T3. (See
@@ -236,10 +237,10 @@ is asserted only by symmetry with T3. (See
 
 ### Default Segmentation Behavior
 
-A Delimiter-free run MUST default to a single Token when it contains
+A Delimiter-free run **MUST** default to a single Token when it contains
 no Orthographic signal for the Orthographic Segmentation Rules to act
-on. This default MUST NOT be overridden by heuristic dictionary
-segmentation; it MAY be overridden only by an explicit Lexicon entry.
+on. This default **MUST NOT** be overridden by heuristic dictionary
+segmentation; it **MAY** be overridden only by an explicit Lexicon entry.
 (See `decisions/0005-ambiguous-compound-words.md`.)
 
 ```example
@@ -303,7 +304,7 @@ Tokens. It exists for three distinct reasons:
 
 ## Case Folding
 
-Case Folding MUST capitalize the first letter of a Token and lowercase
+Case Folding **MUST** capitalize the first letter of a Token and lowercase
 its remaining letters, for every style except constant. This rule
 applies uniformly to every Token regardless of length or origin - no
 exception is made for a Token that happens to be an acronym, and none
@@ -333,7 +334,7 @@ Orthographic Segmentation Rules. (See
 
 ## Serialization
 
-Serialization MUST produce each of the following five styles from a
+Serialization **MUST** produce each of the following five styles from a
 Token sequence, using the case forms Case Folding has already applied:
 
 **Pascal** - concatenate every Token with no delimiter, capitalizing
@@ -350,7 +351,7 @@ the first letter of each Token.
 ```
 
 **camel** - concatenate every Token with no delimiter, identically to
-Pascal, except the first Token's leading letter MUST remain lowercase.
+Pascal, except the first Token's leading letter **MUST** remain lowercase.
 
 ```example
   input: IPAddress
