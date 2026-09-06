@@ -28,3 +28,26 @@ splits with no way to detect the error at the point it's made. A
 closed Lexicon list, by contrast, is wrong only by omission — an
 unlisted string simply falls back to the one-token default — never by
 false confidence in a bad guess.
+
+## Examples
+
+### Positive
+
+- `filepath` → tokens: `file`, `path`
+  - snake: `file_path`
+  - Pascal: `FilePath`
+  (Lexicon explicitly overrides default to split the compound.)
+- `username` → tokens: `username`
+  - snake: `username`
+  - Pascal: `Username`
+  (Delimiter-free run remains whole by default.)
+- `metadata` → tokens: `metadata`
+  - snake: `metadata`
+  (Delimiter-free run remains whole by default.)
+
+### Negative
+
+- `metadata` → tokens: `meta`, `data`
+  (Rejected: guessing sub-words via dictionary heuristics.)
+- `username` → tokens: `user`, `name`
+  (Rejected: uncurated heuristic segmentation.)

@@ -32,3 +32,23 @@ reintroducing per-token special-casing at exactly the stage this
 specification is designed to keep mechanical. Once Tokenization has
 produced a token, Case Folding treats all tokens identically; nothing
 downstream re-inspects a token's provenance.
+
+## Examples
+
+### Positive
+
+- `IPAddress` → tokens: `ip`, `address`
+  - Pascal: `IpAddress`
+  - camel: `ipAddress`
+  - snake: `ip_address`
+- `DBConnectionPool` → tokens: `db`, `connection`, `pool`
+  - Pascal: `DbConnectionPool`
+- `IOStream` → tokens: `io`, `stream`
+  - Pascal: `IoStream`
+
+### Negative
+
+- `IPAddress` → `IPAddress`
+  (Rejected: preserving both letters capitalized in Pascal/camel style.)
+- `IOStream` → `IOStream`
+  (Rejected: treating `IO` as an unsplit, all-uppercase unit.)

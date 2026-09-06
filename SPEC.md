@@ -1,39 +1,32 @@
 # commoncase Specification
 
-## Preface
+## Preface (informative)
 
-commoncase is a specification for converting a single identifier-like
-input string into one of five case styles - Pascal, camel, snake,
-kebab, and constant - through a documented, deterministic pipeline.
-The pipeline has exactly four stages, always run in the same order:
-Normalization, Tokenization, Case Folding, and Serialization. Every
-normative rule in this specification is paired with at least one
-example drawn from the project's corpus (`corpus/cases.json`), and
-every rule that required a judgment call is backed by a decision
-record under `decisions/` (indexed in Annex A). Where a rule has no
-decision record, its corpus cases carry a `decision` value of `null`,
-meaning the rule is considered uncontested.
+This specification defines **commoncase**, an unambiguous,
+deterministic standard for the transformation of singular identifier
+strings into canonical case representations.
+
+Processing is governed by an invariant, four-stage sequential
+pipeline: Normalization, Tokenization, Case Folding, and
+Serialization. Execution order is strictly monotonic; no stage may
+be skipped, reordered, or executed conditionally.
+
+Every normative rule below is illustrated by at least one worked
+example. This document is self-contained: its Conformance clause and
+test vectors are fully defined within it, and no external file is
+required to implement or verify it.
 
 ## References
 
 ### Normative References
 
-- RFC 2119, *Key words for use in RFCs to Indicate Requirement
-  Levels*. Defines **MUST**, **MUST NOT**, **SHOULD**, and **MAY** as used throughout
-  this specification.
+- **[BCP14]** Bradner, S., "Key words for use in RFCs to Indicate
+  Requirement Levels", BCP 14, RFC 2119, March 1997,
+  <https://www.rfc-editor.org/info/bcp14>.
 
-### Informative References
-
-- Microsoft's .NET Framework naming conventions, which capitalize both
-  letters of a two-letter acronym (e.g. `IPAddress`). Cited in
-  `decisions/0001-two-letter-acronyms.md` as the convention this
-  specification decides against.
-- The .NET `System.IO` namespace, which treats `IO` as an unsplit
-  unit. Cited in `decisions/0001-two-letter-acronyms.md` as a second
-  convention this specification decides against.
-- Google's identifier-naming guidance, whose canonical example
-  `XMLHttpRequest` is used in `decisions/0001-two-letter-acronyms.md`
-  as a positive precedent this specification follows.
+- **[ICAO9303]** International Civil Aviation Organization, "Machine
+  Readable Travel Documents", Doc 9303, Part 3, Section 6,
+  <https://www.icao.int/publications/doc-series/doc-9303>.
 
 ## Terminology
 
@@ -42,11 +35,11 @@ meanings given here. No other term is used as a synonym for any of
 these.
 
 **Token** - the smallest unit of meaning that Tokenization identifies
-within an input string. Case Folding and Serialization operate only on
-Tokens; neither stage ever inspects the original input string.
+within an input string. Case Folding and Serialization operate only
+on Tokens; neither stage ever inspects the original input string.
 
-**Boundary** - a position between two characters of an input string at
-which Tokenization divides the string into two separate Tokens.
+**Boundary** - a position between two characters of an input string
+at which Tokenization divides the string into two separate Tokens.
 
 **Orthographic signal** - a feature of an input string's spelling - a
 change in letter case, the presence of a digit, or an explicit
@@ -62,13 +55,8 @@ single Token unless the Lexicon specifies otherwise.
 letters within an input string.
 
 **Lexicon** - the curated, additive list that may override
-Tokenization's mechanical output for a specific string, applied before
-Case Folding runs.
-
-**Decision record** - a document under `decisions/` that records a
-Question, a Decision, and a Rationale (and, where the matter is
-unresolved, an Open question) governing one or more rules in this
-specification, together with the corpus case IDs it governs.
+Tokenization's mechanical output for a specific string, applied
+before Case Folding runs.
 
 ## Scope
 
@@ -82,10 +70,9 @@ the mechanical rules are recorded.
 
 This specification does not address: segmentation of natural-language
 prose or multi-identifier strings; transliteration of non-ASCII
-characters beyond the mapping table currently defined in Normalization
-(see `decisions/0003-non-ascii-transliteration.md`); or a settled
-policy for treating trademarked compounds as atomic (see
-`decisions/0006-trademarks.md`, which remains proposed).
+characters beyond the mapping table currently defined in
+Normalization; or a settled policy for treating trademarked compounds
+as atomic.
 
 ## Conformance
 
@@ -94,7 +81,7 @@ An implementation of this specification conforms if and only if it:
 1. performs Normalization, then Tokenization, then Case Folding, then
    Serialization, in that order, with no stage skipped or reordered;
    and
-2. produces output matching every case in `corpus/cases.json` for at
+2. produces output matching every test vector in Annex A for at
    least one of the five Serialization styles.
 
 ```example
@@ -109,12 +96,13 @@ An implementation of this specification conforms if and only if it:
 
 ## Normalization
 
-Normalization **MUST** transliterate non-ASCII characters to ASCII before
-Tokenization runs. The mapping table currently defines: a with an
-umlaut to "ae", o with an umlaut to "oe", u with an umlaut to "ue",
-and the eszett character to "ss". After Normalization, the string
-**MUST** contain only ASCII characters. (See
-`decisions/0003-non-ascii-transliteration.md`.)
+Normalization **MUST** transliterate non-ASCII characters to ASCII
+before Tokenization runs, using a closed, deterministic mapping table
+sourced from **[ICAO9303]**. The table currently defines the entries
+**[ICAO9303]** assigns to German: a with an umlaut to "ae", o with an
+umlaut to "oe", u with an umlaut to "ue", and the eszett character to
+"ss". After Normalization, the string **MUST** contain only ASCII
+characters.
 
 ```example
   input: straße
@@ -138,17 +126,17 @@ and the eszett character to "ss". After Normalization, the string
 
 ## Tokenization
 
-Tokenization **MUST** divide a Normalized input string into a sequence of
-Tokens. It does this in two steps: first, the Orthographic Segmentation
-Rules mechanically identify Boundaries; second, the Lexicon **MAY**
-override the mechanical result for specific strings before Case
-Folding runs.
+Tokenization **MUST** divide a Normalized input string into a
+sequence of Tokens. It does this in two steps: first, the
+Orthographic Segmentation Rules mechanically identify Boundaries;
+second, the Lexicon **MAY** override the mechanical result for
+specific strings before Case Folding runs.
 
 ### Orthographic Segmentation Rules
 
-The following rules, labeled T1 through T5 with one lettered sub-rule,
-govern where Tokenization places a Boundary based on adjacent
-characters.
+The following rules, labeled T1 through T5 with one lettered
+sub-rule, govern where Tokenization places a Boundary based on
+adjacent characters.
 
 **T1** - A transition from a lowercase letter to an uppercase letter
 **MUST** be treated as a Boundary.
@@ -163,9 +151,10 @@ characters.
   constant: USER_ID
 ```
 
-**T2** - A Cap-run followed by a lowercase letter **MUST** have a Boundary
-placed immediately before the Cap-run's final letter, so that the
-final letter joins the following lowercase run instead of the Cap-run.
+**T2** - A Cap-run followed by a lowercase letter **MUST** have a
+Boundary placed immediately before the Cap-run's final letter, so
+that the final letter joins the following lowercase run instead of
+the Cap-run.
 
 ```example
   input: IPAddress
@@ -201,9 +190,8 @@ letter preceded by a lowercase letter is governed by T1 alone.
   constant: X_COORDINATE
 ```
 
-**T3** - A transition from a letter to a digit **MUST NOT** be treated as a
-Boundary; the digit fuses onto the preceding letters. (See
-`decisions/0002-digit-adjacent-boundaries.md`.)
+**T3** - A transition from a letter to a digit **MUST NOT** be
+treated as a Boundary; the digit fuses onto the preceding letters.
 
 ```example
   input: Sha256Hash
@@ -216,8 +204,7 @@ Boundary; the digit fuses onto the preceding letters. (See
 ```
 
 **T4** - A transition from a digit to an uppercase letter **MUST** be
-treated as a Boundary. (See
-`decisions/0002-digit-adjacent-boundaries.md`.)
+treated as a Boundary.
 
 ```example
   input: Iso8601Date
@@ -229,19 +216,18 @@ treated as a Boundary. (See
   constant: ISO8601_DATE
 ```
 
-**T5** - A transition from a digit to a lowercase letter **MUST NOT** be
-treated as a Boundary. This sub-case is unvalidated: no corpus case
-exercises a digit immediately followed by a lowercase letter, and it
-is asserted only by symmetry with T3. (See
-`decisions/0007-ordinal-digit-suffix.md`, which remains proposed.)
+**T5** - A transition from a digit to a lowercase letter **MUST NOT**
+be treated as a Boundary. This sub-case is unvalidated: no test
+vector in Annex A exercises a digit immediately followed by a
+lowercase letter, and it is asserted only by symmetry with T3.
 
 ### Default Segmentation Behavior
 
-A Delimiter-free run **MUST** default to a single Token when it contains
-no Orthographic signal for the Orthographic Segmentation Rules to act
-on. This default **MUST NOT** be overridden by heuristic dictionary
-segmentation; it **MAY** be overridden only by an explicit Lexicon entry.
-(See `decisions/0005-ambiguous-compound-words.md`.)
+A Delimiter-free run **MUST** default to a single Token when it
+contains no Orthographic signal for the Orthographic Segmentation
+Rules to act on. This default **MUST NOT** be overridden by
+heuristic dictionary segmentation; it **MAY** be overridden only by
+an explicit Lexicon entry.
 
 ```example
   input: username
@@ -271,16 +257,14 @@ Lexicon entry replaces the Tokens that mechanical segmentation would
 otherwise produce for a specific string with a corrected set of
 Tokens. It exists for three distinct reasons:
 
-- to correct segmentation that the Orthographic Segmentation Rules get
-  flatly wrong, such as `oauth2` or `graphql`, which do not decompose
-  into their intended sub-words mechanically (see
-  `decisions/0004-tokenizer-word-list.md`);
+- to correct segmentation that the Orthographic Segmentation Rules
+  get flatly wrong, such as `oauth2` or `graphql`, which do not
+  decompose into their intended sub-words mechanically;
 - to force or confirm a split within a Delimiter-free run, where the
-  default of one Token is not the intended reading (see
-  `decisions/0005-ambiguous-compound-words.md`); and
+  default of one Token is not the intended reading; and
 - to force a mechanically correct split to remain one Token for
-  trademark reasons (see `decisions/0006-trademarks.md`, which remains
-  **proposed** and is not yet a settled part of this specification).
+  trademark reasons. This use is proposed and not yet a settled part
+  of this specification.
 
 ```example
   input: OAuth2Client
@@ -304,13 +288,12 @@ Tokens. It exists for three distinct reasons:
 
 ## Case Folding
 
-Case Folding **MUST** capitalize the first letter of a Token and lowercase
-its remaining letters, for every style except constant. This rule
-applies uniformly to every Token regardless of length or origin - no
-exception is made for a Token that happens to be an acronym, and none
-is made for a Token supplied by the Lexicon rather than by the
-Orthographic Segmentation Rules. (See
-`decisions/0001-two-letter-acronyms.md`.)
+Case Folding **MUST** capitalize the first letter of a Token and
+lowercase its remaining letters, for every style except constant.
+This rule applies uniformly to every Token regardless of length or
+origin - no exception is made for a Token that happens to be an
+acronym, and none is made for a Token supplied by the Lexicon rather
+than by the Orthographic Segmentation Rules.
 
 ```example
   input: IPAddress
@@ -334,8 +317,9 @@ Orthographic Segmentation Rules. (See
 
 ## Serialization
 
-Serialization **MUST** produce each of the following five styles from a
-Token sequence, using the case forms Case Folding has already applied:
+Serialization **MUST** produce each of the following five styles
+from a Token sequence, using the case forms Case Folding has already
+applied:
 
 **Pascal** - concatenate every Token with no delimiter, capitalizing
 the first letter of each Token.
@@ -351,7 +335,8 @@ the first letter of each Token.
 ```
 
 **camel** - concatenate every Token with no delimiter, identically to
-Pascal, except the first Token's leading letter **MUST** remain lowercase.
+Pascal, except the first Token's leading letter **MUST** remain
+lowercase.
 
 ```example
   input: IPAddress
@@ -402,17 +387,34 @@ underscore.
   constant: AES256_KEY
 ```
 
-## Annex A (informative) Decision Records
+## Annex A (informative) Test Vectors
 
-This annex is informative. It indexes every decision record under
-`decisions/`; it does not reproduce their content.
+This annex is informative. It is the complete, self-contained set of
+test vectors referenced by the Conformance clause; an implementation
+need not consult any file outside this specification to be tested
+against it.
 
-| # | Title | Status | Corpus |
-|---|---|---|---|
-| [0001](decisions/0001-two-letter-acronyms.md) | Two-Letter Acronyms | stable | 002, 003, 004 |
-| [0002](decisions/0002-digit-adjacent-boundaries.md) | Digit-Adjacent Boundaries | stable | 007, 008, 009, 010, 011 |
-| [0003](decisions/0003-non-ascii-transliteration.md) | Non-ASCII Transliteration | stable | 021, 022 |
-| [0004](decisions/0004-tokenizer-word-list.md) | Tokenizer Word List | stable | 012, 013, 014 |
-| [0005](decisions/0005-ambiguous-compound-words.md) | Ambiguous Compound Words | stable | 017, 018, 019 |
-| [0006](decisions/0006-trademarks.md) | Trademarks | **proposed** | none yet |
-| [0007](decisions/0007-ordinal-digit-suffix.md) | Ordinal Digit Suffix | **proposed** | none yet |
+| ID | Input | Tokens | Pascal | camel | snake | kebab | constant |
+|---|---|---|---|---|---|---|---|
+| 001 | `userId` | user, id | `UserId` | `userId` | `user_id` | `user-id` | `USER_ID` |
+| 002 | `IPAddress` | ip, address | `IpAddress` | `ipAddress` | `ip_address` | `ip-address` | `IP_ADDRESS` |
+| 003 | `DBConnectionPool` | db, connection, pool | `DbConnectionPool` | `dbConnectionPool` | `db_connection_pool` | `db-connection-pool` | `DB_CONNECTION_POOL` |
+| 004 | `IOStream` | io, stream | `IoStream` | `ioStream` | `io_stream` | `io-stream` | `IO_STREAM` |
+| 005 | `HTTPRequestHandler` | http, request, handler | `HttpRequestHandler` | `httpRequestHandler` | `http_request_handler` | `http-request-handler` | `HTTP_REQUEST_HANDLER` |
+| 006 | `XMLHttpRequest` | xml, http, request | `XmlHttpRequest` | `xmlHttpRequest` | `xml_http_request` | `xml-http-request` | `XML_HTTP_REQUEST` |
+| 007 | `Sha256Hash` | sha256, hash | `Sha256Hash` | `sha256Hash` | `sha256_hash` | `sha256-hash` | `SHA256_HASH` |
+| 008 | `Aes256Key` | aes256, key | `Aes256Key` | `aes256Key` | `aes256_key` | `aes256-key` | `AES256_KEY` |
+| 009 | `Utf8String` | utf8, string | `Utf8String` | `utf8String` | `utf8_string` | `utf8-string` | `UTF8_STRING` |
+| 010 | `Iso8601Date` | iso8601, date | `Iso8601Date` | `iso8601Date` | `iso8601_date` | `iso8601-date` | `ISO8601_DATE` |
+| 011 | `top10Items` | top10, items | `Top10Items` | `top10Items` | `top10_items` | `top10-items` | `TOP10_ITEMS` |
+| 012 | `IPv6Address` | ipv6, address | `Ipv6Address` | `ipv6Address` | `ipv6_address` | `ipv6-address` | `IPV6_ADDRESS` |
+| 013 | `OAuth2Client` | oauth2, client | `Oauth2Client` | `oauth2Client` | `oauth2_client` | `oauth2-client` | `OAUTH2_CLIENT` |
+| 014 | `GraphQLSchema` | graphql, schema | `GraphqlSchema` | `graphqlSchema` | `graphql_schema` | `graphql-schema` | `GRAPHQL_SCHEMA` |
+| 015 | `iPhone` | i, phone | `IPhone` | `iPhone` | `i_phone` | `i-phone` | `I_PHONE` |
+| 016 | `checkIOSVersion` | check, ios, version | `CheckIosVersion` | `checkIosVersion` | `check_ios_version` | `check-ios-version` | `CHECK_IOS_VERSION` |
+| 017 | `filepath` | file, path | `FilePath` | `filePath` | `file_path` | `file-path` | `FILE_PATH` |
+| 018 | `username` | username | `Username` | `username` | `username` | `username` | `USERNAME` |
+| 019 | `metadata` | metadata | `Metadata` | `metadata` | `metadata` | `metadata` | `METADATA` |
+| 020 | `xCoordinate` | x, coordinate | `XCoordinate` | `xCoordinate` | `x_coordinate` | `x-coordinate` | `X_COORDINATE` |
+| 021 | `straße` | strasse | `Strasse` | `strasse` | `strasse` | `strasse` | `STRASSE` |
+| 022 | `müllerStraße` | mueller, strasse | `MuellerStrasse` | `muellerStrasse` | `mueller_strasse` | `mueller-strasse` | `MUELLER_STRASSE` |

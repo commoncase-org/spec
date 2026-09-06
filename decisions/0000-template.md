@@ -18,9 +18,20 @@ corpus: []
 
 <Why? What would go wrong with the alternative(s)?>
 
+## Examples
+
+### Positive
+
+<Examples of inputs, tokens, and outputs prescribed by this decision.>
+
+### Negative
+
+<Examples of rejected outputs, incorrect splits, or conventions this
+decision explicitly avoids.>
+
 <!-- Only include the section below if something about the decision
-     is still unresolved. Otherwise delete it and end the file at
-     "## Rationale". -->
+     is still unresolved. Otherwise delete it and end the file after
+     "## Examples". -->
 
 ## Open question
 

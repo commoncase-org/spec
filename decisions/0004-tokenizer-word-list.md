@@ -29,3 +29,22 @@ An opaque, preserve-verbatim Serialization step was already rejected
 elsewhere in this specification, so the correction has to happen
 upstream, in Tokenization, before the bad segmentation ever reaches
 Case Folding.
+
+## Examples
+
+### Positive
+
+- `OAuth2Client` → tokens: `oauth2`, `client`
+  - Pascal: `Oauth2Client`
+  - camel: `oauth2Client`
+  - snake: `oauth2_client`
+  (Lexicon overrides mechanical segmentation before Case Folding.)
+- `GraphQLSchema` → tokens: `graphql`, `schema`
+  - Pascal: `GraphqlSchema`
+
+### Negative
+
+- `OAuth2Client` → tokens: `o`, `auth2`, `client`
+  - Pascal: `OAuth2Client`
+  (Rejected: mechanical segmentation breaking the acronym into `o` and
+  `auth2`.)

@@ -25,7 +25,7 @@ Three rules govern digit adjacency:
   sub-case has no corpus case exercising it directly (every digit run
   in the corpus is followed either by a boundary-triggering uppercase
   letter or by nothing) and is therefore unvalidated; see
-  [[0007-ordinal-digit-suffix]].
+  [[0006-ordinal-digit-suffix]].
 
 ## Rationale
 
@@ -36,3 +36,23 @@ units, not as a word awkwardly split before its trailing number.
 Treating digit-to-uppercase as a boundary (T4) is what lets
 `Sha256Hash` recover the two tokens `sha256` and `hash` instead of
 collapsing into one.
+
+## Examples
+
+### Positive
+
+- `Sha256Hash` → tokens: `sha256`, `hash`
+  - Pascal: `Sha256Hash`
+  - snake: `sha256_hash`
+  (Letter fuses onto following digit under T3; digit splits before
+  uppercase letter under T4.)
+- `top10Items` → tokens: `top10`, `items`
+  - camel: `top10Items`
+  - snake: `top10_items`
+
+### Negative
+
+- `Sha256Hash` → tokens: `sha`, `256`, `hash`
+  (Rejected: splitting between letter and digit.)
+- `Sha256Hash` → tokens: `sha256hash`
+  (Rejected: failing to split between digit and uppercase letter.)

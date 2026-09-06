@@ -3,6 +3,8 @@ min_version = "2024.9.5"
 [tools]
 python = "3.12"
 uv = "latest"
+bun = "latest"
+"npm:markdownlint-cli2" = "latest"
 
 [env]
 # Automatic virtualenv activation (created on first `mise install`/`mise run`)
@@ -11,6 +13,10 @@ _.python.venv = { path = ".venv", create = true }
 [tasks.validate]
 description = "Validate corpus/cases.json against the rendering rules and check decision links resolve"
 run = "scripts/validate"
+
+[tasks.lint]
+description = "Lint markdown files against line length (col 72) and formatting rules"
+run = "markdownlint-cli2 '**/*.md'"
 
 [tasks.create-decision]
 description = "Scaffold a new decision record from decisions/0000-template.md (usage: mise run create-decision -- <Title>)"
