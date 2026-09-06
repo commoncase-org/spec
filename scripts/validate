@@ -1,0 +1,98 @@
+#!/usr/bin/env python3
+"""Validate corpus/cases.json against the commoncase rendering rules
+and cross-check every referenced decision record actually exists.
+
+(a) Recomputes each corpus entry's five outputs from its `tokens` and
+    fails on any mismatch.
+(b) Confirms every `decision` slug used in corpus/cases.json resolves
+    to a real file in decisions/.
+"""
+import json
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+CASES_PATH = ROOT / "corpus" / "cases.json"
+DECISIONS_DIR = ROOT / "decisions"
+
+
+def cap(tok):
+    return tok[0].upper() + tok[1:] if tok else tok
+
+
+def pascal(tokens):
+    return "".join(cap(t) for t in tokens)
+
+
+def camel(tokens):
+    if not tokens:
+        return ""
+    first = tokens[0]
+    first = first[0].lower() + first[1:] if first else first
+    return first + "".join(cap(t) for t in tokens[1:])
+
+
+def snake(tokens):
+    return "_".join(tokens)
+
+
+def kebab(tokens):
+    return "-".join(tokens)
+
+
+def constant(tokens):
+    return "_".join(t.upper() for t in tokens)
+
+
+RULES = {
+    "pascal": pascal,
+    "camel": camel,
+    "snake": snake,
+    "kebab": kebab,
+    "constant": constant,
+}
+
+
+def main():
+    errors = []
+
+    cases = json.loads(CASES_PATH.read_text(encoding="utf-8"))
+
+    # (a) recompute five outputs per entry
+    for entry in cases:
+        cid = entry.get("id", "?")
+        tokens = entry["tokens"]
+        for style, fn in RULES.items():
+            expected = fn(tokens)
+            actual = entry[style]
+            if expected != actual:
+                errors.append(
+                    f"case {cid} ({entry.get('input')!r}): {style} "
+                    f"mismatch — expected {expected!r}, got {actual!r}"
+                )
+
+    # (b) confirm every decision slug resolves to a real file
+    decision_files = {p.stem for p in DECISIONS_DIR.glob("*.md")}
+    for entry in cases:
+        cid = entry.get("id", "?")
+        decision = entry.get("decision")
+        if decision is None:
+            continue
+        if decision not in decision_files:
+            errors.append(
+                f"case {cid} ({entry.get('input')!r}): decision slug "
+                f"{decision!r} has no matching file in decisions/"
+            )
+
+    if errors:
+        print(f"FAIL — {len(errors)} error(s):")
+        for e in errors:
+            print(f"  - {e}")
+        return 1
+
+    print(f"OK — {len(cases)} corpus cases validated, all decision links resolve.")
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

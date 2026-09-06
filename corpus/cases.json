@@ -1,0 +1,355 @@
+[
+  {
+    "id": "001",
+    "input": "userId",
+    "tokens": [
+      "user",
+      "id"
+    ],
+    "pascal": "UserId",
+    "camel": "userId",
+    "snake": "user_id",
+    "kebab": "user-id",
+    "constant": "USER_ID",
+    "decision": null,
+    "status": "stable",
+    "note": "Baseline; Id needs no exception."
+  },
+  {
+    "id": "002",
+    "input": "IPAddress",
+    "tokens": [
+      "ip",
+      "address"
+    ],
+    "pascal": "IpAddress",
+    "camel": "ipAddress",
+    "snake": "ip_address",
+    "kebab": "ip-address",
+    "constant": "IP_ADDRESS",
+    "decision": "0001-two-letter-acronyms",
+    "status": "stable",
+    "note": "Contra Microsoft's 2-letter-acronym rule."
+  },
+  {
+    "id": "003",
+    "input": "DBConnectionPool",
+    "tokens": [
+      "db",
+      "connection",
+      "pool"
+    ],
+    "pascal": "DbConnectionPool",
+    "camel": "dbConnectionPool",
+    "snake": "db_connection_pool",
+    "kebab": "db-connection-pool",
+    "constant": "DB_CONNECTION_POOL",
+    "decision": "0001-two-letter-acronyms",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "004",
+    "input": "IOStream",
+    "tokens": [
+      "io",
+      "stream"
+    ],
+    "pascal": "IoStream",
+    "camel": "ioStream",
+    "snake": "io_stream",
+    "kebab": "io-stream",
+    "constant": "IO_STREAM",
+    "decision": "0001-two-letter-acronyms",
+    "status": "stable",
+    "note": "Contra .NET's System.IO exception."
+  },
+  {
+    "id": "005",
+    "input": "HTTPRequestHandler",
+    "tokens": [
+      "http",
+      "request",
+      "handler"
+    ],
+    "pascal": "HttpRequestHandler",
+    "camel": "httpRequestHandler",
+    "snake": "http_request_handler",
+    "kebab": "http-request-handler",
+    "constant": "HTTP_REQUEST_HANDLER",
+    "decision": null,
+    "status": "stable",
+    "note": "3+-letter acronym, uncontested."
+  },
+  {
+    "id": "006",
+    "input": "XMLHttpRequest",
+    "tokens": [
+      "xml",
+      "http",
+      "request"
+    ],
+    "pascal": "XmlHttpRequest",
+    "camel": "xmlHttpRequest",
+    "snake": "xml_http_request",
+    "kebab": "xml-http-request",
+    "constant": "XML_HTTP_REQUEST",
+    "decision": null,
+    "status": "stable",
+    "note": "Matches Google's own canonical example."
+  },
+  {
+    "id": "007",
+    "input": "Sha256Hash",
+    "tokens": [
+      "sha256",
+      "hash"
+    ],
+    "pascal": "Sha256Hash",
+    "camel": "sha256Hash",
+    "snake": "sha256_hash",
+    "kebab": "sha256-hash",
+    "constant": "SHA256_HASH",
+    "decision": "0002-digit-adjacent-boundaries",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "008",
+    "input": "Aes256Key",
+    "tokens": [
+      "aes256",
+      "key"
+    ],
+    "pascal": "Aes256Key",
+    "camel": "aes256Key",
+    "snake": "aes256_key",
+    "kebab": "aes256-key",
+    "constant": "AES256_KEY",
+    "decision": "0002-digit-adjacent-boundaries",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "009",
+    "input": "Utf8String",
+    "tokens": [
+      "utf8",
+      "string"
+    ],
+    "pascal": "Utf8String",
+    "camel": "utf8String",
+    "snake": "utf8_string",
+    "kebab": "utf8-string",
+    "constant": "UTF8_STRING",
+    "decision": "0002-digit-adjacent-boundaries",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "010",
+    "input": "Iso8601Date",
+    "tokens": [
+      "iso8601",
+      "date"
+    ],
+    "pascal": "Iso8601Date",
+    "camel": "iso8601Date",
+    "snake": "iso8601_date",
+    "kebab": "iso8601-date",
+    "constant": "ISO8601_DATE",
+    "decision": "0002-digit-adjacent-boundaries",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "011",
+    "input": "top10Items",
+    "tokens": [
+      "top10",
+      "items"
+    ],
+    "pascal": "Top10Items",
+    "camel": "top10Items",
+    "snake": "top10_items",
+    "kebab": "top10-items",
+    "constant": "TOP10_ITEMS",
+    "decision": "0002-digit-adjacent-boundaries",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "012",
+    "input": "IPv6Address",
+    "tokens": [
+      "ipv6",
+      "address"
+    ],
+    "pascal": "Ipv6Address",
+    "camel": "ipv6Address",
+    "snake": "ipv6_address",
+    "kebab": "ipv6-address",
+    "constant": "IPV6_ADDRESS",
+    "decision": "0002-digit-adjacent-boundaries",
+    "status": "stable",
+    "note": "Also needs the 0004 Lexicon mechanism to avoid a wrong split."
+  },
+  {
+    "id": "013",
+    "input": "OAuth2Client",
+    "tokens": [
+      "oauth2",
+      "client"
+    ],
+    "pascal": "Oauth2Client",
+    "camel": "oauth2Client",
+    "snake": "oauth2_client",
+    "kebab": "oauth2-client",
+    "constant": "OAUTH2_CLIENT",
+    "decision": "0004-tokenizer-word-list",
+    "status": "stable",
+    "note": "Mechanical rule alone gives the wrong \"OAuth2Client\"; see decision."
+  },
+  {
+    "id": "014",
+    "input": "GraphQLSchema",
+    "tokens": [
+      "graphql",
+      "schema"
+    ],
+    "pascal": "GraphqlSchema",
+    "camel": "graphqlSchema",
+    "snake": "graphql_schema",
+    "kebab": "graphql-schema",
+    "constant": "GRAPHQL_SCHEMA",
+    "decision": "0004-tokenizer-word-list",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "015",
+    "input": "iPhone",
+    "tokens": [
+      "i",
+      "phone"
+    ],
+    "pascal": "IPhone",
+    "camel": "iPhone",
+    "snake": "i_phone",
+    "kebab": "i-phone",
+    "constant": "I_PHONE",
+    "decision": null,
+    "status": "stable",
+    "note": "No Lexicon entry needed — mechanical rule already isolates \"i\"."
+  },
+  {
+    "id": "016",
+    "input": "checkIOSVersion",
+    "tokens": [
+      "check",
+      "ios",
+      "version"
+    ],
+    "pascal": "CheckIosVersion",
+    "camel": "checkIosVersion",
+    "snake": "check_ios_version",
+    "kebab": "check-ios-version",
+    "constant": "CHECK_IOS_VERSION",
+    "decision": null,
+    "status": "stable",
+    "note": "No Lexicon entry needed for this spelling variant."
+  },
+  {
+    "id": "017",
+    "input": "filepath",
+    "tokens": [
+      "file",
+      "path"
+    ],
+    "pascal": "FilePath",
+    "camel": "filePath",
+    "snake": "file_path",
+    "kebab": "file-path",
+    "constant": "FILE_PATH",
+    "decision": "0005-ambiguous-compound-words",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "018",
+    "input": "username",
+    "tokens": [
+      "username"
+    ],
+    "pascal": "Username",
+    "camel": "username",
+    "snake": "username",
+    "kebab": "username",
+    "constant": "USERNAME",
+    "decision": "0005-ambiguous-compound-words",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "019",
+    "input": "metadata",
+    "tokens": [
+      "metadata"
+    ],
+    "pascal": "Metadata",
+    "camel": "metadata",
+    "snake": "metadata",
+    "kebab": "metadata",
+    "constant": "METADATA",
+    "decision": "0005-ambiguous-compound-words",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "020",
+    "input": "xCoordinate",
+    "tokens": [
+      "x",
+      "coordinate"
+    ],
+    "pascal": "XCoordinate",
+    "camel": "xCoordinate",
+    "snake": "x_coordinate",
+    "kebab": "x-coordinate",
+    "constant": "X_COORDINATE",
+    "decision": null,
+    "status": "stable",
+    "note": "Sanity check, single-letter token."
+  },
+  {
+    "id": "021",
+    "input": "straße",
+    "tokens": [
+      "strasse"
+    ],
+    "pascal": "Strasse",
+    "camel": "strasse",
+    "snake": "strasse",
+    "kebab": "strasse",
+    "constant": "STRASSE",
+    "decision": "0003-non-ascii-transliteration",
+    "status": "stable",
+    "note": null
+  },
+  {
+    "id": "022",
+    "input": "müllerStraße",
+    "tokens": [
+      "mueller",
+      "strasse"
+    ],
+    "pascal": "MuellerStrasse",
+    "camel": "muellerStrasse",
+    "snake": "mueller_strasse",
+    "kebab": "mueller-strasse",
+    "constant": "MUELLER_STRASSE",
+    "decision": "0003-non-ascii-transliteration",
+    "status": "stable",
+    "note": null
+  }
+]

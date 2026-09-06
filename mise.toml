@@ -1,0 +1,17 @@
+min_version = "2024.9.5"
+
+[tools]
+python = "3.12"
+uv = "latest"
+
+[env]
+# Automatic virtualenv activation (created on first `mise install`/`mise run`)
+_.python.venv = { path = ".venv", create = true }
+
+[tasks.validate]
+description = "Validate corpus/cases.json against the rendering rules and check decision links resolve"
+run = "scripts/validate"
+
+[tasks.create-decision]
+description = "Scaffold a new decision record from decisions/0000-template.md (usage: mise run create-decision -- <Title>)"
+run = "scripts/create-decision"
