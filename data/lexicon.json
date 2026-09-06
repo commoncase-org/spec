@@ -1,0 +1,22 @@
+[
+  {
+    "key": "oauth2",
+    "tokens": ["oauth2"],
+    "rationale": "Preserves OAuth 2.0 version suffix"
+  },
+  {
+    "key": "graphql",
+    "tokens": ["graphql"],
+    "rationale": "Preserves compound technical name"
+  },
+  {
+    "key": "ipv6",
+    "tokens": ["ipv6"],
+    "rationale": "Preserves Internet Protocol v6 notation"
+  },
+  {
+    "key": "filepath",
+    "tokens": ["file", "path"],
+    "rationale": "Overrides Delimiter-Free default split"
+  }
+]

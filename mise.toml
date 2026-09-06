@@ -10,8 +10,13 @@ bun = "latest"
 # Automatic virtualenv activation (created on first `mise install`/`mise run`)
 _.python.venv = { path = ".venv", create = true }
 
+[tasks.build]
+description = "Mechanically build SPEC.md from spec/SPEC.template.md using Knap"
+run = "scripts/build-spec"
+
 [tasks.validate]
-description = "Validate corpus/cases.json against the rendering rules and check decision links resolve"
+description = "Validate conformance vectors against rendering rules and verify data registries"
+depends = ["build"]
 run = "scripts/validate"
 
 [tasks.lint]

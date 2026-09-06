@@ -1,19 +1,19 @@
 #!/usr/bin/env python3
-"""Validate corpus/cases.json against the commoncase rendering rules
-and cross-check every referenced decision record actually exists.
-
-(a) Recomputes each corpus entry's five outputs from its `tokens` and
-    fails on any mismatch.
-(b) Confirms every `decision` slug used in corpus/cases.json resolves
-    to a real file in decisions/.
+"""Validate conformance/vectors.json against the commoncase rendering rules,
+cross-check every referenced decision record actually exists, and verify
+data registries (transliteration table, core lexicon).
 """
+import csv
 import json
 import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-CASES_PATH = ROOT / "corpus" / "cases.json"
+VECTORS_PATH = ROOT / "conformance" / "vectors.json"
+CASES_PATH = VECTORS_PATH
 DECISIONS_DIR = ROOT / "decisions"
+LEXICON_PATH = ROOT / "data" / "lexicon.json"
+CSV_PATH = ROOT / "data" / "transliteration.csv"
 
 
 def cap(tok):
@@ -84,13 +84,50 @@ def main():
                 f"{decision!r} has no matching file in decisions/"
             )
 
+    # (c) validate data/lexicon.json schema
+    if not LEXICON_PATH.exists():
+        errors.append(f"missing registry file: {LEXICON_PATH}")
+    else:
+        try:
+            lexicon = json.loads(LEXICON_PATH.read_text(encoding="utf-8"))
+            if not isinstance(lexicon, list):
+                errors.append("data/lexicon.json must be a JSON array")
+            else:
+                for idx, item in enumerate(lexicon):
+                    if not isinstance(item.get("key"), str) or not item["key"]:
+                        errors.append(f"lexicon[{idx}]: missing or invalid 'key'")
+                    if not isinstance(item.get("tokens"), list) or not item["tokens"]:
+                        errors.append(f"lexicon[{idx}]: missing or invalid 'tokens'")
+                    if not isinstance(item.get("rationale"), str) or not item["rationale"]:
+                        errors.append(f"lexicon[{idx}]: missing or invalid 'rationale'")
+        except Exception as ex:
+            errors.append(f"failed to parse data/lexicon.json: {ex}")
+
+    # (d) validate data/transliteration.csv
+    if not CSV_PATH.exists():
+        errors.append(f"missing registry file: {CSV_PATH}")
+    else:
+        try:
+            with CSV_PATH.open(encoding="utf-8") as f:
+                reader = csv.DictReader(f)
+                fieldnames = set(reader.fieldnames or [])
+                if not {"codepoint", "character", "name"}.issubset(fieldnames) or not (
+                    "ascii_replacement" in fieldnames or "replacement" in fieldnames
+                ):
+                    errors.append("data/transliteration.csv missing required columns")
+        except Exception as ex:
+            errors.append(f"failed to read data/transliteration.csv: {ex}")
+
     if errors:
         print(f"FAIL — {len(errors)} error(s):")
         for e in errors:
             print(f"  - {e}")
         return 1
 
-    print(f"OK — {len(cases)} corpus cases validated, all decision links resolve.")
+    print(
+        f"OK — {len(cases)} conformance vectors validated, all decision links resolve, "
+        "and data registries are verified."
+    )
     return 0
 
 

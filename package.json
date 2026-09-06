@@ -1,0 +1,14 @@
+{
+  "name": "commoncase-spec",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "bun scripts/build-spec"
+  },
+  "dependencies": {
+    "knap": "^0.2.3"
+  },
+  "devDependencies": {
+    "@types/node": "^26.4.1"
+  }
+}

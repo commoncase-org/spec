@@ -1,0 +1,204 @@
+#!/usr/bin/env bun
+import { createEngine, standardFilters, type TemplateFilter } from "knap";
+import * as fs from "node:fs";
+import * as path from "node:path";
+
+const ROOT = path.resolve(import.meta.dir, "..");
+const TEMPLATE_PATH = path.resolve(ROOT, "spec/SPEC.template.md");
+const OUTPUT_PATH = path.resolve(ROOT, "SPEC.md");
+const CSV_PATH = path.resolve(ROOT, "data/transliteration.csv");
+const CASES_PATH = path.resolve(ROOT, "conformance/vectors.json");
+const LEXICON_PATH = path.resolve(ROOT, "data/lexicon.json");
+
+// Helper to resolve paths relative to repo root
+function resolveRepoPath(filePath: string): string {
+  return path.isAbsolute(filePath) ? filePath : path.resolve(ROOT, filePath);
+}
+
+// Filter: include file content
+const include: TemplateFilter = (filePath: string) => {
+  const resolved = resolveRepoPath(filePath);
+  if (!fs.existsSync(resolved)) {
+    throw new Error(`File not found: ${filePath}`);
+  }
+  return fs.readFileSync(resolved, "utf-8");
+};
+
+// Filter: parse CSV text into array of row objects
+const parse_csv: TemplateFilter = (val: any) => {
+  const csvText = typeof val === "string" ? val : "";
+  const lines = csvText.trim().split("\n");
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(",").map((h) => h.trim());
+  const rows: Array<Record<string, string>> = [];
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i].trim();
+    if (!line) continue;
+    const values = line.split(",").map((v) => v.trim());
+    const obj: Record<string, string> = {};
+    headers.forEach((h, idx) => {
+      obj[h] = values[idx] ?? "";
+    });
+    rows.push(obj);
+  }
+  return rows;
+};
+
+// Filter: parse JSON text
+const parse_json: TemplateFilter = (val: any) => {
+  if (typeof val === "string") {
+    return JSON.parse(val);
+  }
+  return val;
+};
+
+// Filter: shorthand include_csv
+const include_csv: TemplateFilter = (filePath: string) => {
+  const text = include(filePath, "", undefined);
+  return parse_csv(text, "", undefined);
+};
+
+// Filter: render Annex B transliteration table
+const transliteration_table: TemplateFilter = (val: any) => {
+  let rows = val;
+  if (typeof val === "string") {
+    try {
+      rows = JSON.parse(val);
+    } catch {
+      rows = parse_csv(val, "", undefined);
+    }
+  }
+  if (!Array.isArray(rows)) return "";
+
+  let out = "| Code Point | Character | Unicode Character Name | Replacement |\n";
+  out += "| :--- | :--- | :--- | :--- |\n";
+  for (const r of rows) {
+    const cp = r.codepoint || r.code_point || "";
+    const ch = r.character || r.char || "";
+    const name = r.name || r.unicode_name || "";
+    const repl = r.ascii_replacement || r.replacement || "";
+    out += `| \`${cp}\` | ${ch} | ${name} | \`${repl}\` |\n`;
+  }
+  return out.trim();
+};
+
+// Filter: render Annex C Standard Core Lexicon table
+const lexicon_table: TemplateFilter = (val: any) => {
+  let entries = val;
+  if (typeof val === "string") {
+    try {
+      entries = JSON.parse(val);
+    } catch {
+      entries = [];
+    }
+  }
+  if (!Array.isArray(entries)) return "";
+
+  let out = "| Lookup Key | Replacement Tokens | Normative Rationale |\n";
+  out += "| :--- | :--- | :--- |\n";
+  for (const e of entries) {
+    const key = e.key;
+    const tokens = Array.isArray(e.tokens) ? e.tokens.map((t: string) => `\`${t}\``).join(", ") : e.tokens;
+    const rationale = e.rationale;
+    out += `| \`${key}\` | ${tokens} | ${rationale} |\n`;
+  }
+  return out.trim();
+};
+
+// Filter: render Annex A test vectors table
+const test_vectors_table: TemplateFilter = (val: any) => {
+  let cases = val;
+  if (typeof val === "string") {
+    try {
+      cases = JSON.parse(val);
+    } catch {
+      cases = [];
+    }
+  }
+  if (!Array.isArray(cases)) return "";
+
+  let out = "| ID | Input | Tokens | Pascal | camel | snake | kebab | constant |\n";
+  out += "|---|---|---|---|---|---|---|---|\n";
+  for (const c of cases) {
+    const cid = c.id;
+    const inp = c.input;
+    const toks = Array.isArray(c.tokens) ? c.tokens.join(", ") : c.tokens;
+    const pas = c.pascal;
+    const cam = c.camel;
+    const snk = c.snake;
+    const keb = c.kebab;
+    const con = c.constant;
+    out += `| ${cid} | \`${inp}\` | ${toks} | \`${pas}\` | \`${cam}\` | \`${snk}\` | \`${keb}\` | \`${con}\` |\n`;
+  }
+  return out.trim();
+};
+
+const engine = createEngine({
+  filters: {
+    ...standardFilters,
+    include,
+    parse_csv,
+    parse_json,
+    include_csv,
+    transliteration_table,
+    test_vectors_table,
+    lexicon_table,
+  },
+});
+
+async function main() {
+  const isCheck = process.argv.includes("--check");
+
+  if (!fs.existsSync(TEMPLATE_PATH)) {
+    console.error(`Error: template not found at ${TEMPLATE_PATH}`);
+    process.exit(1);
+  }
+
+  const template = fs.readFileSync(TEMPLATE_PATH, "utf-8");
+
+  // Load standard variables for template access
+  const transliterations = parse_csv(fs.readFileSync(CSV_PATH, "utf-8"), "", undefined);
+  const cases = JSON.parse(fs.readFileSync(CASES_PATH, "utf-8"));
+  const lexicon = JSON.parse(fs.readFileSync(LEXICON_PATH, "utf-8"));
+
+  const variables = {
+    transliterations,
+    cases,
+    lexicon,
+  };
+
+  const result = await engine.render(template, { variables });
+
+  if (result.errors && result.errors.length > 0) {
+    console.error("Knap render errors:");
+    for (const err of result.errors) {
+      console.error(`  - [${err.code}] ${err.message} at line ${err.line}, col ${err.column}`);
+    }
+    process.exit(1);
+  }
+
+  // Ensure trailing newline
+  let output = result.output.trim() + "\n";
+
+  if (isCheck) {
+    if (!fs.existsSync(OUTPUT_PATH)) {
+      console.error("SPEC.md does not exist. Run `mise run build`.");
+      process.exit(1);
+    }
+    const current = fs.readFileSync(OUTPUT_PATH, "utf-8");
+    if (current !== output) {
+      console.error("SPEC.md is out of date with SPEC.template.md. Run `mise run build`.");
+      process.exit(1);
+    }
+    console.log("OK — SPEC.md matches SPEC.template.md.");
+    return;
+  }
+
+  fs.writeFileSync(OUTPUT_PATH, output, "utf-8");
+  console.log(`Successfully built ${path.relative(ROOT, OUTPUT_PATH)} from ${path.relative(ROOT, TEMPLATE_PATH)} using Knap.`);
+}
+
+main().catch((err) => {
+  console.error("Fatal build error:", err);
+  process.exit(1);
+});

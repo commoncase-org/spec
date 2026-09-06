@@ -3,7 +3,7 @@ id: "0006"
 title: Ordinal Digit Suffix
 status: stable
 affects: Tokenization
-corpus: []
+corpus: ["027", "028"]
 ---
 
 ## Question
